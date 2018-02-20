@@ -73,7 +73,13 @@ public class Solution {
 
         return null;
     }
-
+    
+    /**
+    * Checks if a video fits in a cache
+    * @param cache - a particular cache
+    * @param video - a particular video
+    * @return
+    */
     public boolean videoFits(int cache, int video){
         return this.caches[cache] >= video;
     }
