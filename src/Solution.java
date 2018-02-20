@@ -75,7 +75,7 @@ public class Solution {
     }
 
     public boolean videoFits(int cache, int video){
-        return false;
+        return this.caches[cache] >= video;
     }
 
 
