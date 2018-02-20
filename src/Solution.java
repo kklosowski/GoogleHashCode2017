@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
  */
 public class Solution {
 
-    public static final String FILE_NAME = "me_at_the_zoo";
+    public static final String FILE_NAME = "kittens";
     private final List<String> raw;
     int[] params;
     int[] videoSizes;
@@ -153,7 +153,7 @@ public class Solution {
 
     public int calculateTimeSaved(Request request, int cacheNo){
         Endpoint endpoint = endpoints[request.requestingEndpoint];
-        return endpoint.dcLatency - endpoint.cacheLatencies.get(cacheNo) * request.requestsAmount;
+        return endpoint.dcLatency - endpoint.cacheLatencies.getOrDefault(cacheNo,0) * request.requestsAmount;
     }
 
     public void generateOutput(Map<Integer, List<Integer>> outputMap) {
@@ -165,7 +165,7 @@ public class Solution {
 
             outputMap.entrySet().forEach(x ->
             {
-                printWriter.println(x.getKey() + " ");
+                printWriter.print(x.getKey() + " ");
                 if(x.getValue() != null) {
                     x.getValue().forEach(y -> printWriter.print(y + " "));
                 }
