@@ -1,10 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -80,13 +77,22 @@ public class Solution {
 
     public void bestCachePerRequestCumulative(Request[] requests) {
         //For each video get all the requests
-        Map<Integer, Request[]> requestsByVideo = null;
-        Arrays.stream(requests).collect(Collectors.groupingBy(Request::getVideoNumber));
+        Map<Integer, List<Request>> requestsByVideo = Arrays.stream(requests).collect(Collectors.groupingBy(Request::getVideoNumber));
 
-//        for (int i = 0; i < ; i++) {
-//
-//        }
-//        requestsByVideo.entrySet().stream().filter(x -> isConnected())
+        Map<Integer, List<int[]>> cacheVideoTimeSaved = new HashMap<>();
+        for (int i = 0; i < caches.length; i++) {
+            int finalI = i;
+            List<int[]> videoTimeSaved = requestsByVideo.entrySet().stream()
+                    .filter(x -> isConnected(finalI, x.getValue().stream()
+                            .map(y-> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
+                    .map(x -> new int[]{
+                            x.getKey(),
+                            x.getValue().stream()
+                            .mapToInt(y -> calculateTimeSaved(y, finalI))
+                            .sum()})
+                    .collect(Collectors.toList());
+            cacheVideoTimeSaved.put(finalI, videoTimeSaved);
+        }
         //Calculate the time saved on each cache allocation for every video
         //Find cumulative time saved by each cache
         //Sort by time saved
@@ -104,13 +110,25 @@ public class Solution {
                 .collect(Collectors.toList());
     }
 
-    public boolean isConnected (int cacheNo, Endpoint[] endpoints){
-        return 0 < Arrays.stream(endpoints)
-                .filter(x -> x.cacheLatencies.containsKey(cacheNo)).count();
+    public boolean isConnected (int cacheNo, List<Endpoint> endpoints){
+        return 0 < endpoints.stream().filter(x -> x.cacheLatencies.containsKey(cacheNo)).count();
     }
 
-    public int calculateCost(Request request, int cacheNo){
+    public int calculateTimeSaved(Request request, int cacheNo){
         Endpoint endpoint = endpoints[request.requestingEndpoint];
         return endpoint.dcLatency - endpoint.cacheLatencies.get(cacheNo) * request.requestsAmount;
+    }
+
+
+    class RCT {
+        Request request;
+        int cache;
+        int time;
+
+        public RCT(Request request, int cache, int time) {
+            this.request = request;
+            this.cache = cache;
+            this.time = time;
+        }
     }
 }
