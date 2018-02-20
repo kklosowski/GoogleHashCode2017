@@ -7,12 +7,16 @@ import java.util.stream.IntStream;
 /**
  * @author Oskar
  * @version 1.0
- * created on: 13/02/2018.
+ *          created on: 13/02/2018.
  */
 public class Main {
     public static final String FILE_NAME = "me_at_the_zoo";
 
     public static void main(String[] args) {
+
+//        int[][][] scan = new int[55][55][55];
+//        Integer[] z = Arrays.stream(scan).flatMap(x -> Arrays.stream(x).flatMap(y -> Arrays.stream(y).boxed())).toArray(Integer[]::new);
+//        Arrays.stream(z).forEach(System.out::println);
 
         try {
             List<String> raw = Files.lines(Paths.get("../StreamingVideo/src/" + FILE_NAME + ".in")).collect(Collectors.toList());
@@ -23,6 +27,7 @@ public class Main {
             int requestNo = params[2];
             int[] caches = IntStream.generate(() -> params[4]).limit(params[3]).toArray();
 
+            //Latencies from endpoints to each cache
             Integer latencies[][] = raw.stream().filter(x -> x.split(" ").length == 2)
                     .map(x -> Arrays.stream(x.split(" "))
                             .map(Integer::valueOf)
@@ -38,7 +43,7 @@ public class Main {
 
             //Latency array to endpoint array
             for (int i = 0, epnum = 0; i < latencies.length; epnum++) {
-                endpoints[epnum] = new Endpoint(epnum,latencies[i][0]);
+                endpoints[epnum] = new Endpoint(epnum, latencies[i][0]);
                 int len = latencies[i][1];
                 i++;
                 for (int j = 0; j < len; j++, i++) {
@@ -56,22 +61,40 @@ public class Main {
         }
     }
 
-    //Best possible time saving for each cache (bundles requests from ech endpoint connected to cache)
-    public List<Request> bestAllocationPerCache(int cacheNum){
-        return null;
-    }
-
-    //Best caches sorted by the time saved to cache descending
-    public List<Integer[]> bestCachesPerRequest(Request request, Endpoint endpoint){
-        return Arrays.stream(requestTimeSavedPerCache(request, endpoint))
-                .sorted(Comparator.comparing(x -> ((int[]) x)[1]).reversed())
-                .collect(Collectors.toList());
-    }
-
     //Time saved for each cache for a given request from an endpoint
-    public static Integer[][] requestTimeSavedPerCache(Request request, Endpoint endpoint){
+    public static Integer[][] requestTimeSavedPerCache(Request request, Endpoint endpoint) {
         return endpoint.cacheLatencies.entrySet().stream()
                 .map(x -> new Integer[]{x.getKey(), Math.abs(x.getValue() - endpoint.dcLatency)})
                 .toArray(Integer[][]::new);
+    }
+
+    //Best possible time saving for each cache (bundles requests from ech endpoint connected to cache)
+    public List<Request> bestAllocationPerCache(int cacheNum, Request[] requests) {
+
+
+        return null;
+    }
+
+    public void bestCachePerRequestCumulative(Request[] requests) {
+        //For each video get all the requests
+        Map<Integer, Request[]> requestsByVideo = null;
+        Arrays.stream(requests).collect(Collectors.groupingBy(Request::getVideoNumber));
+
+
+        //Calculate the time saved on each cache allocation for every endpoint
+            //Find cumulative time saved by each cache
+            //Sort by time saved
+//        requestsByVideo.
+        //Find best cache for that single video
+        //Return <request, cache, timesaved>
+
+
+    }
+
+    //Best caches sorted by the time saved to cache descending
+    public List<Integer[]> bestCachesPerRequest(Request request, Endpoint endpoint) {
+        return Arrays.stream(requestTimeSavedPerCache(request, endpoint))
+                .sorted(Comparator.comparing(x -> ((int[]) x)[1]).reversed())
+                .collect(Collectors.toList());
     }
 }

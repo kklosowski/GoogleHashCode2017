@@ -18,4 +18,8 @@ public class Request {
         this.videoSize = videoSize;
         this.requestSize = videoSize * requestsAmount;
     }
+
+    public int getVideoNumber() {
+        return videoNumber;
+    }
 }
