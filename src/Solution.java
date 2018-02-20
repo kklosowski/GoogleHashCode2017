@@ -19,9 +19,8 @@ public class Solution {
     int requestNo;
     int[] caches;
 
-    public Solution(List<String> raw) throws IOException {
-        this.raw = raw;
-
+    public Solution(List<String> raw) {
+       this.raw = raw;
        params = Arrays.stream(raw.get(0).split(" ")).mapToInt(Integer::valueOf).toArray();
        videoSizes = Arrays.stream(raw.get(1).split(" ")).mapToInt(Integer::valueOf).toArray();
        endpoints = new Endpoint[params[1]];
@@ -75,13 +74,21 @@ public class Solution {
         return null;
     }
 
+    public boolean videoFits(int cache, int video){
+        return false;
+    };
+
     public void bestCachePerRequestCumulative(Request[] requests) {
         //For each video get all the requests
         Map<Integer, List<Request>> requestsByVideo = Arrays.stream(requests).collect(Collectors.groupingBy(Request::getVideoNumber));
 
         Map<Integer, List<int[]>> cacheVideoTimeSaved = new HashMap<>();
+
+        Map<Integer, List<Integer>> output = new HashMap<>();
+
         for (int i = 0; i < caches.length; i++) {
             int finalI = i;
+            output.put(i, new ArrayList<>());
             List<int[]> videoTimeSaved = requestsByVideo.entrySet().stream()
                     .filter(x -> isConnected(finalI, x.getValue().stream()
                             .map(y-> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
@@ -93,6 +100,10 @@ public class Solution {
                     .collect(Collectors.toList());
             cacheVideoTimeSaved.put(finalI, videoTimeSaved);
         }
+
+
+        cacheVideoTimeSaved.entrySet().stream().
+
         //Calculate the time saved on each cache allocation for every video
         //Find cumulative time saved by each cache
         //Sort by time saved
