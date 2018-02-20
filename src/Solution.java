@@ -1,6 +1,6 @@
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -12,12 +12,15 @@ import java.util.stream.IntStream;
  */
 public class Solution {
 
+    public static final String FILE_NAME = "me_at_the_zoo";
     private final List<String> raw;
     int[] params;
     int[] videoSizes;
     Endpoint[] endpoints;
     int requestNo;
     int[] caches;
+    Request requests[];
+    Integer latencies[][];
 
     public Solution(List<String> raw) {
        this.raw = raw;
@@ -28,13 +31,13 @@ public class Solution {
        caches = IntStream.generate(() -> params[4]).limit(params[3]).toArray();
 
         //Latencies from endpoints to each cache
-        Integer latencies[][] = raw.stream().filter(x -> x.split(" ").length == 2)
+         latencies = raw.stream().filter(x -> x.split(" ").length == 2)
                 .map(x -> Arrays.stream(x.split(" "))
                         .map(Integer::valueOf)
                         .toArray(Integer[]::new))
                 .toArray(Integer[][]::new);
 
-        Request requests[] = raw.stream().filter(x -> x.split(" ").length == 3)
+        requests = raw.stream().filter(x -> x.split(" ").length == 3)
                 .map(x -> Arrays.stream(x.split(" "))
                         .map(Integer::valueOf)
                         .toArray(Integer[]::new))
@@ -57,7 +60,7 @@ public class Solution {
     }
 
     public void solve(){
-
+        generateOutput(generateVideoDistrubution(requests));
     }
 
     //Time saved for each cache for a given request from an endpoint
@@ -75,12 +78,12 @@ public class Solution {
     }
 
     public boolean videoFits(int cache, int video){
-        return this.caches[cache] >= video;
+        return this.caches[cache] >= videoSizes[video];
     }
 
 
 
-    public void bestCachePerRequestCumulative(Request[] requests) {
+    public Map<Integer, List<Integer>> generateVideoDistrubution(Request[] requests) {
         //For each video get all the requests
         Map<Integer, List<Request>> requestsByVideo = Arrays.stream(requests).collect(Collectors.groupingBy(Request::getVideoNumber));
 
@@ -109,10 +112,13 @@ public class Solution {
                 x -> {
                     while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0])))
                     {
-//                        putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
+                        putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
+                        output.get(x.getKey()).add(x.getValue().get(0)[0]);
                         x.getValue().remove(0);
                     }
                 });
+
+        return output;
 
         //Calculate the time saved on each cache allocation for every video
         //Find cumulative time saved by each cache
@@ -122,6 +128,10 @@ public class Solution {
         //Return <request, cache, timesaved>
 
 
+    }
+
+    public void putVideoInCache(int cacheNumber, int videoNumber){
+        this.caches[cacheNumber] -= this.videoSizes[videoNumber];
     }
 
     //Best caches sorted by the time saved to cache descending
@@ -138,6 +148,28 @@ public class Solution {
     public int calculateTimeSaved(Request request, int cacheNo){
         Endpoint endpoint = endpoints[request.requestingEndpoint];
         return endpoint.dcLatency - endpoint.cacheLatencies.get(cacheNo) * request.requestsAmount;
+    }
+
+    public void generateOutput(Map<Integer, List<Integer>> outputMap) {
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(FILE_NAME + ".out");
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.println(outputMap.size()); //How many cache servers we are using
+
+            outputMap.entrySet().forEach(x ->
+            {
+                printWriter.println(x.getKey() + " ");
+                if(x.getValue() != null) {
+                    x.getValue().forEach(y -> printWriter.print(y + " "));
+                }
+                printWriter.print("\n");
+            });
+
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }
