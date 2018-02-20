@@ -76,7 +76,9 @@ public class Solution {
 
     public boolean videoFits(int cache, int video){
         return false;
-    };
+    }
+
+
 
     public void bestCachePerRequestCumulative(Request[] requests) {
         //For each video get all the requests
@@ -97,12 +99,20 @@ public class Solution {
                             x.getValue().stream()
                             .mapToInt(y -> calculateTimeSaved(y, finalI))
                             .sum()})
+                    .sorted(Comparator.comparing(x -> ((int[])x)[1]).reversed())
                     .collect(Collectors.toList());
             cacheVideoTimeSaved.put(finalI, videoTimeSaved);
         }
 
 
-        cacheVideoTimeSaved.entrySet().stream().
+        cacheVideoTimeSaved.entrySet().forEach(
+                x -> {
+                    while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0])))
+                    {
+//                        putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
+                        x.getValue().remove(0);
+                    }
+                });
 
         //Calculate the time saved on each cache allocation for every video
         //Find cumulative time saved by each cache
@@ -130,16 +140,4 @@ public class Solution {
         return endpoint.dcLatency - endpoint.cacheLatencies.get(cacheNo) * request.requestsAmount;
     }
 
-
-    class RCT {
-        Request request;
-        int cache;
-        int time;
-
-        public RCT(Request request, int cache, int time) {
-            this.request = request;
-            this.cache = cache;
-            this.time = time;
-        }
-    }
 }
