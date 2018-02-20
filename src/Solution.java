@@ -119,14 +119,15 @@ public class Solution {
 
         cacheVideoTimeSaved.entrySet().forEach(
                 x -> {
-                    while (x.getValue().stream().anyMatch(y -> y[0] != Integer.MAX_VALUE && videoFits(x.getKey(), y[0])))
+                    while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0])))
                     {
-                        x.getValue().stream()
-                                .filter(y -> y[0] != Integer.MAX_VALUE && videoFits(x.getKey(), y[0]))
+                        List<int[]> copy = new ArrayList<>(x.getValue());
+                        copy.stream()
+                                .filter(y -> videoFits(x.getKey(), y[0]))
                                 .forEach(y -> {
                                     putVideoInCache(x.getKey(), y[0]);
                                     output.get(x.getKey()).add(y[0]);
-                                    y[0] = Integer.MAX_VALUE;
+                                    x.getValue().remove(y);
                                 });
                     }
                 });
