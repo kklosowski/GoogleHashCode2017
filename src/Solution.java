@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
  */
 public class Solution {
 
-    public static final String FILE_NAME = "kittens";
+    public final String FILE_NAME;
     private final List<String> raw;
     int[] params;
     int[] videoSizes;
@@ -22,7 +22,8 @@ public class Solution {
     Request requests[];
     Integer latencies[][];
 
-    public Solution(List<String> raw) {
+    public Solution(List<String> raw, String filename) {
+        this.FILE_NAME = filename;
        this.raw = raw;
        params = Arrays.stream(raw.get(0).split(" ")).mapToInt(Integer::valueOf).toArray();
        videoSizes = Arrays.stream(raw.get(1).split(" ")).mapToInt(Integer::valueOf).toArray();
