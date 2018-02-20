@@ -18,7 +18,7 @@ public class Main {
         try {
             List<String> raw = Files.lines(Paths.get("../StreamingVideo/src/" + FILE_NAME + ".in")).collect(Collectors.toList());
             Solution solution = new Solution(raw);
-
+            solution.solve();
         } catch (Exception e) {
             e.printStackTrace();
         }

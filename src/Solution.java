@@ -103,4 +103,14 @@ public class Solution {
                 .sorted(Comparator.comparing(x -> ((int[]) x)[1]).reversed())
                 .collect(Collectors.toList());
     }
+
+    public boolean isConnected (int cacheNo, Endpoint[] endpoints){
+        return 0 < Arrays.stream(endpoints)
+                .filter(x -> x.cacheLatencies.containsKey(cacheNo)).count();
+    }
+
+    public int calculateCost(Request request, int cacheNo){
+        Endpoint endpoint = endpoints[request.requestingEndpoint];
+        return endpoint.dcLatency - endpoint.cacheLatencies.get(cacheNo) * request.requestsAmount;
+    }
 }
