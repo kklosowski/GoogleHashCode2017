@@ -118,9 +118,12 @@ public class Solution {
                 x -> {
                     while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0])))
                     {
-                        putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
-                        output.get(x.getKey()).add(x.getValue().get(0)[0]);
-                        x.getValue().remove(0);
+                        x.getValue().stream().filter(y -> videoFits(x.getKey(), y[0]));
+                        if(x.getValue().size() > 0){
+                            putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
+                            output.get(x.getKey()).add(x.getValue().get(0)[0]);
+                            x.getValue().remove(0);
+                        }
                     }
                 });
 
