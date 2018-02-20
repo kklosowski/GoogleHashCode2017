@@ -62,6 +62,8 @@ public class Solution {
 
     public void solve(){
         generateOutput(generateVideoDistrubution(requests));
+        System.out.println(FILE_NAME);
+        System.out.println(Arrays.toString(caches));
     }
 
     //Time saved for each cache for a given request from an endpoint
@@ -117,14 +119,15 @@ public class Solution {
 
         cacheVideoTimeSaved.entrySet().forEach(
                 x -> {
-                    while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0])))
+                    while (x.getValue().stream().anyMatch(y -> y[0] != Integer.MAX_VALUE && videoFits(x.getKey(), y[0])))
                     {
-                        x.getValue().stream().filter(y -> videoFits(x.getKey(), y[0]));
-                        if(x.getValue().size() > 0){
-                            putVideoInCache(x.getKey(), x.getValue().get(0)[0]);
-                            output.get(x.getKey()).add(x.getValue().get(0)[0]);
-                            x.getValue().remove(0);
-                        }
+                        x.getValue().stream()
+                                .filter(y -> y[0] != Integer.MAX_VALUE && videoFits(x.getKey(), y[0]))
+                                .forEach(y -> {
+                                    putVideoInCache(x.getKey(), y[0]);
+                                    output.get(x.getKey()).add(y[0]);
+                                    y[0] = Integer.MAX_VALUE;
+                                });
                     }
                 });
 
