@@ -99,7 +99,7 @@ public class Solution {
 
         //For each video get all the requests
         Map<Integer, List<Request>> requestsByVideo = requests.stream().collect(Collectors.groupingBy(Request::getVideoNumber));
-        Map<Integer, List<int[]>> timeSavedVideoCache = new HashMap<>();
+        Map<Integer, List<int[]>> timeSavedCacheVideo = new HashMap<>();
 
         for (int i = 0; i < cacheCapacities.length; i++) {
             int finalI = i;
@@ -114,12 +114,12 @@ public class Solution {
                                     .mapToInt(y -> calculateTimeSaved(y, finalI))
                                     .sum()})
                     .forEach(x -> {
-                        timeSavedVideoCache.putIfAbsent(x[1], new ArrayList<>());
-                        timeSavedVideoCache.get(x[1]).add(new int[]{x[0], finalI});
+                        timeSavedCacheVideo.putIfAbsent(x[1], new ArrayList<>());
+                        timeSavedCacheVideo.get(x[1]).add(new int[]{finalI, x[0]});
                     });
         }
 
-        return timeSavedVideoCache;
+        return timeSavedCacheVideo;
     }
 
     private boolean videoAlreadyInCache(int cache, int video) {
@@ -212,7 +212,12 @@ public class Solution {
 
     public int calculateTimeSaved(Request request, int cacheNo) {
         Endpoint endpoint = endpoints[request.requestingEndpoint];
-        return endpoint.dcLatency - endpoint.cacheLatencies.getOrDefault(cacheNo, 0) * request.requestsAmount;
+        int cacheLatency = endpoint.cacheLatencies.getOrDefault(cacheNo, 0);
+        if (cacheLatency == 0){
+            return 0;
+        } else {
+            return (endpoint.dcLatency - cacheLatency) * request.requestsAmount;
+        }
     }
 
     public void generateOutput() {
