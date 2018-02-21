@@ -22,4 +22,15 @@ public class Request {
     public int getVideoNumber() {
         return videoNumber;
     }
+
+    @Override
+    public String toString() {
+        return "Request{" +
+                "videoNumber=" + videoNumber +
+                ", requestsAmount=" + requestsAmount +
+                ", requestingEndpoint=" + requestingEndpoint +
+                ", videoSize=" + videoSize +
+                ", requestSize=" + requestSize +
+                '}';
+    }
 }

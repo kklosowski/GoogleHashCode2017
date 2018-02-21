@@ -17,9 +17,9 @@ public class Main {
 
     public static void main(String[] args) {
         fileNames = new ArrayList<>();
-        fileNames.add("kittens");
-        fileNames.add("videos_worth_spreading");
-        fileNames.add("me_at_the_zoo");
+//        fileNames.add("kittens");
+//        fileNames.add("videos_worth_spreading");
+//        fileNames.add("me_at_the_zoo");
         fileNames.add("trending_today");
         try {
             for (String FILE_NAME: fileNames) {
