@@ -65,7 +65,6 @@ public class Solution {
 
         //Assign requests to endpoints
         requests.forEach(x -> endpoints[x.requestingEndpoint].addRequest(x));
-
     }
 
     public void solve() {
@@ -81,6 +80,7 @@ public class Solution {
                 .map(x -> new Integer[]{x.getKey(), Math.abs(x.getValue() - endpoint.dcLatency)})
                 .toArray(Integer[][]::new);
     }
+
 
     /**
      * Checks if a video fits in a cache
@@ -99,33 +99,25 @@ public class Solution {
 
         //For each video get all the requests
         Map<Integer, List<Request>> requestsByVideo = requests.stream().collect(Collectors.groupingBy(Request::getVideoNumber));
-        Map<Integer, List<int[]>> cacheVideoTimeSaved = new HashMap<>();
         Map<Integer, List<int[]>> timeSavedVideoCache = new HashMap<>();
 
         for (int i = 0; i < cacheCapacities.length; i++) {
             int finalI = i;
-            List<int[]> videoTimeSaved = requestsByVideo.entrySet().stream()
-                    .filter(x -> isConnected(finalI, x.getValue().stream()
-                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
+            requestsByVideo.entrySet().stream()
                     .filter(x -> videoFits(finalI, x.getKey()))
                     .filter(x -> !videoAlreadyInCache(finalI, x.getKey()))
+                    .filter(x -> isConnected(finalI, x.getValue().stream()
+                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
                     .map(x -> new int[]{
                             x.getKey(),
                             x.getValue().stream()
                                     .mapToInt(y -> calculateTimeSaved(y, finalI))
                                     .sum()})
-                    .sorted(Comparator.comparing(x -> ((int[]) x)[1]).reversed())
-                    .collect(Collectors.toList());
-            cacheVideoTimeSaved.put(finalI, videoTimeSaved);
+                    .forEach(x -> {
+                        timeSavedVideoCache.putIfAbsent(x[1], new ArrayList<>());
+                        timeSavedVideoCache.get(x[1]).add(new int[]{x[0], finalI});
+                    });
         }
-
-        //Create a map with timesaved as a key and List<{cache, video}> pair as a value
-        cacheVideoTimeSaved.entrySet().forEach(x -> {
-            x.getValue().forEach(y -> {
-                timeSavedVideoCache.putIfAbsent(y[1], new ArrayList<>());
-                timeSavedVideoCache.get(y[1]).add(new int[]{x.getKey(), y[0]});
-            });
-        });
 
         return timeSavedVideoCache;
     }
@@ -139,7 +131,6 @@ public class Solution {
 
         Map<Integer, List<int[]>> timeSavedVideoCache = getCacheVideoPairsSortedByTimeSaved();
 
-        //Todo Final iteration over time saved with removing requests until none left
         int counter = 1;
         long lastTime = System.currentTimeMillis();
         while (timeSavedVideoCache.size() > 0) {
@@ -186,9 +177,8 @@ public class Solution {
     }
 
     public List<Integer> endpointsConnectedToCache(List<Integer> endpointNumbers, int cacheNumber) {
-        return Arrays.stream(endpoints)
-                .filter(x -> x.cacheLatencies.keySet().contains(cacheNumber))
-                .map(x -> x.number)
+        return endpointNumbers.stream()
+                .filter(x -> endpoints[x].cacheLatencies.keySet().contains(cacheNumber))
                 .collect(Collectors.toList());
     }
 
