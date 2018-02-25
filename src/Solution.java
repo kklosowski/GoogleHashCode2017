@@ -74,14 +74,6 @@ public class Solution {
         System.out.println(Arrays.toString(cacheCapacities));
     }
 
-    //Time saved for each cache for a given request from an endpoint
-    public Integer[][] requestTimeSavedPerCache(Request request, Endpoint endpoint) {
-        return endpoint.cacheLatencies.entrySet().stream()
-                .map(x -> new Integer[]{x.getKey(), Math.abs(x.getValue() - endpoint.dcLatency)})
-                .toArray(Integer[][]::new);
-    }
-
-
     /**
      * Checks if a video fits in a cache
      *
@@ -106,8 +98,8 @@ public class Solution {
             requestsByVideo.entrySet().stream()
                     .filter(x -> videoFits(finalI, x.getKey()))
                     .filter(x -> !videoAlreadyInCache(finalI, x.getKey()))
-                    .filter(x -> isConnected(finalI, x.getValue().stream()
-                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
+//                    .filter(x -> isConnected(finalI, x.getValue().stream()
+//                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
                     .map(x -> new int[]{
                             x.getKey(),
                             x.getValue().stream()
@@ -145,28 +137,6 @@ public class Solution {
             lastTime = now;
         }
 
-//        //Swap places of cache and video and put it in a new  Map<Integer, List<int[]>> videoCacheTimeSaved
-//        cacheVideoTimeSaved.entrySet().forEach(x -> {
-//            //x.getKey() - cache number
-//            x.getValue().forEach(y -> {
-//                videoCacheTimeSaved.get(y[0]).add(new int[]{x.getKey(), y[1]});
-//            });
-//        });
-//
-//
-//        //Distribute using a greedy solution iterating over each cache and filling it sequentially
-//        cacheVideoTimeSaved.entrySet().forEach(x -> {
-//            while (x.getValue().stream().anyMatch(y -> videoFits(x.getKey(), y[0]))) {
-//                List<int[]> copy = new ArrayList<>(x.getValue());
-//                copy.stream()
-//                        .filter(y -> videoFits(x.getKey(), y[0]))
-//                        .forEach(y -> {
-//                            putVideoInCache(x.getKey(), y[0]);
-//                            outputCacheFirst.get(x.getKey()).add(y[0]);
-//                            x.getValue().remove(y);
-//                        });
-//            }
-//        });
     }
 
     public List<Integer> endpointsRequestingVideo(int videoNumber) {
@@ -199,12 +169,6 @@ public class Solution {
         removeServedRequests(cacheNumber, videoNumber);
     }
 
-    //Best caches sorted by the time saved to cache descending
-    public List<Integer[]> bestCachesPerRequest(Request request, Endpoint endpoint) {
-        return Arrays.stream(requestTimeSavedPerCache(request, endpoint))
-                .sorted(Comparator.comparing(x -> ((int[]) x)[1]).reversed())
-                .collect(Collectors.toList());
-    }
 
     public boolean isConnected(int cacheNo, List<Endpoint> endpoints) {
         return 0 < endpoints.stream().filter(x -> x.cacheLatencies.containsKey(cacheNo)).count();
