@@ -98,8 +98,8 @@ public class Solution {
             requestsByVideo.entrySet().stream()
                     .filter(x -> videoFits(finalI, x.getKey()))
                     .filter(x -> !videoAlreadyInCache(finalI, x.getKey()))
-//                    .filter(x -> isConnected(finalI, x.getValue().stream()
-//                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
+                    .filter(x -> isConnected(finalI, x.getValue().stream()
+                            .map(y -> endpoints[y.requestingEndpoint]).collect(Collectors.toList())))
                     .map(x -> new int[]{
                             x.getKey(),
                             x.getValue().stream()
@@ -133,7 +133,7 @@ public class Solution {
             //Recalculate
             timeSavedVideoCache = getCacheVideoPairsSortedByTimeSaved();
             long now = System.currentTimeMillis();
-            System.out.println("Calculated: " + counter++ +  "   Duration= " + String.valueOf( Math.abs(lastTime - now)) + "   Requests= " + requests.size());
+            System.out.println("Calculated: " + counter++ +  "   Duration: " + String.valueOf( Math.abs(lastTime - now)) + "   RequestsLeft: " + requests.size());
             lastTime = now;
         }
 
@@ -187,7 +187,7 @@ public class Solution {
     public void generateOutput() {
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter(FILE_NAME + ".out");
+            fileWriter = new FileWriter("./solutions/" + FILE_NAME + ".out");
             PrintWriter printWriter = new PrintWriter(fileWriter);
             printWriter.println(this.cacheVideoAssignments.size()); //How many cache servers we are using
 
